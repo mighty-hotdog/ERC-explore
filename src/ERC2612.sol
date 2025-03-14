@@ -6,11 +6,15 @@ import {ERC20Core} from "./ERC20Core.sol";
 /**
  * @title   ERC2612
  *          An implementation of the ERC2612 standard https://eips.ethereum.org/EIPS/eip-2612.
- * @author  @mighty_hotdog 2025-03-13
+ * @author  @mighty_hotdog
+ *          created 2025-03-13
+ *          modified 2025-03-14
+ *              added comment to specify that the ERC2612_Permit() event is specific to this implementation
  */
 abstract contract ERC2612 is ERC20Core {
     // events /////////////////////////////////////////////////////////////////////
     // emitted for successful permit() call
+    // This event is specific to this implementation and is not in the ERC2612 standard.
     event ERC2612_Permit(address indexed owner, address indexed spender, uint256 indexed value);
 
     // constants and immutables ///////////////////////////////////////////////////
