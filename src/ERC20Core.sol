@@ -1,53 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-//import {IERC20} from "forge-std/interfaces/IERC20.sol";
-import {IERC165} from "forge-std/interfaces/IERC165.sol";
-import {IERC4626} from "forge-std/interfaces/IERC4626.sol";
-
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import {ERC1363} from "@openzeppelin/contracts/token/ERC20/extensions/ERC1363.sol";
-import {ERC4626} from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
-
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {IERC20} from "./IERC20.sol";
 
 /**
  * @title   ERC20Core
  *          An implementation of the ERC20 standard https://eips.ethereum.org/EIPS/eip-20.
- * @author  @mighty_hotdog 2025-03-10
- * @dev     This contract is NOT INTENDED to be used directly. In fact this implementation is unusable
- *          as there is no mechanism for minting new tokens.
- *          This is intended to be used as a base class for other more complete ERC20 implementations.
+ * @author  @mighty_hotdog
+ *          created 2025-03-10
+ *          modified 2025-03-14
+ *              separated the ERC20 interface into its own contract IERC20
+ * @dev     This contract cannot be used on its own but is intended to be inherited into other contracts.
  * @dev     ReentrancyGuard from OpenZeppelin is used to guard against reentrancy.
  */
-abstract contract ERC20Core is ReentrancyGuard {
-    // ****************************************************************************
-    // ERC20 required implementations
-    // ****************************************************************************
-
-    // events /////////////////////////////////////////////////////////////////////
-    /**
-     * @notice  Transfer()
-     *          Emitted when tokens are transferred, including zero value transfers.
-     * @dev     Also triggered in token creation aka minting, ie: _from == address(0).
-     */
-    event Transfer(address indexed _from, address indexed _to, uint256 _value);
-
-    /**
-     * @notice  Approval()
-     *          Emitted on successful call to approve() function.
-     */
-    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
-
+abstract contract ERC20Core is IERC20, ReentrancyGuard {
     // state variables ////////////////////////////////////////////////////////////
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
     // functions //////////////////////////////////////////////////////////////////
-
     /**
      * @notice  totalSupply()
      *          Returns the total token supply.
