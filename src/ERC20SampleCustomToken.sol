@@ -20,6 +20,7 @@ import {Pausable} from "./Pausable.sol";
 import {Ownable} from "./Ownable.sol";
 import {ERC2612} from "./ERC2612.sol";
 import {ERC677} from "./ERC677.sol";
+import {ERC165} from "./ERC165.sol";
 
 /**
  * @title   ERC20SampleCustomToken
@@ -34,8 +35,9 @@ import {ERC677} from "./ERC677.sol";
  *              to add ERC2612 functionality
  *          modified 2025-03-14
  *              to add ERC677 functionality
+ *              to add ERC165 functionality
  */
-contract ERC20SampleCustomToken is ERC20Core, ERC20Metadata, ERC20Mintable, ERC20Burnable, Pausable, Ownable, ERC2612, ERC677 {
+contract ERC20SampleCustomToken is ERC20Core, ERC20Metadata, ERC20Mintable, ERC20Burnable, Pausable, Ownable, ERC2612, ERC677, ERC165 {
     // events
     event SCT_Minted(address indexed toAccount, uint256 amount);
     event SCT_Burned(address indexed fromAccount, uint256 amount);
@@ -46,7 +48,11 @@ contract ERC20SampleCustomToken is ERC20Core, ERC20Metadata, ERC20Mintable, ERC2
     uint8 public constant DECIMALS = 8;
 
     // functions
-    constructor(address initialOwner) ERC20Mintable(MAX_TOKEN_SUPPLY) ERC20Metadata("SampleCustomToken", "SCT") Ownable(initialOwner) {
+    constructor(address initialOwner, bytes4[] memory supportedInterfaceIds) 
+            ERC20Mintable(MAX_TOKEN_SUPPLY) 
+            ERC20Metadata("SampleCustomToken", "SCT") 
+            Ownable(initialOwner) 
+            ERC165(supportedInterfaceIds) {
         mint(msg.sender, STARTING_TOTAL_SUPPLY);
     }
 

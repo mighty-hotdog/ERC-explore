@@ -87,13 +87,13 @@ forge build
 3. ~~capping mechanism~~ DONE
 4. ~~wrapper mechanism~~ DONE
 5. ~~ERC677 extension~~ DONE
-6. ERC165 extension
+6. ~~ERC165 extension~~ DONE
 7. ~~ERC2612 aka permit extension~~ DONE
 8. ERC4626 extension
 9. ERC1155 extension
 10. ERC4337 extension
 11. ERC3156 extension
-12. separate interface from implementation
+12. ~~separate interface from implementation~~ DONE
     1. ~~ERC677~~ done
     2. ~~ERC20Core~~ done
     3. ~~ERC2612~~ done
