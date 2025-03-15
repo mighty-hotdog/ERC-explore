@@ -1,5 +1,12 @@
 # ERC4626 - ERC20 Tokenized Vaults
 
+## Specifications
+1. Underlying tokens, aka assets, are ERC20 tokens.
+2. Vault must implement ERC20 optional metadata extensions to describe the underlying token.
+3. Vault tokens, aka shares, are ERC20 tokens.
+4. Vault tokens may be non-transferrable, ie: the ERC20 methods of `transfer()` and `transferFrom()` may revert.
+5. Vault may implement ERC2612 for vault tokens.
+
 ## Important Terms
 - **assets**  
 	Underlying tokens managed by the Vault.  
@@ -61,7 +68,7 @@ The receiver is the account to which assets are withdrawn from the Vault.
 1. Implementions serving EOAs directly should add additional EOA-targetted functions for each of these functions `deposit()`, `mint()`, `withdraw()`, `redeem()` to handle slippage loss or unexpected deposit/withdrawal limits, as there is no other way to revert these transactions if the exact output amount is not achieved.  
 2. The convert and preview functions should not be used as price oracles, as their specifications are not intended to produce price-oracle-worthy functions. Separate suitably reliable, robust, and timely price oracles should be implemented/integrated where needed.  
 3. It is considered most secure to favor the Vault over users in calculations, eg:  
-round down when calculating:  
+	round down when calculating:  
    - how many shares to issue to users for a certain amount of assets deposited  
    - how many assets to transfer to users for burning a certain amount of shares  
 
