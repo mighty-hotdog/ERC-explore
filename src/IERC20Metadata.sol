@@ -1,43 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ERC20Core} from "./ERC20Core.sol";
-
 /**
- * @title   ERC20Metadata
- *          Implements the optional metadata part of the ERC20 standard https://eips.ethereum.org/EIPS/eip-20.
- * @author  @mighty_hotdog
- *          created 2025-03-10
- *          modified 2025-03-14
- *              modified hardcoded decimals() function to use private DECIMALS constant instead
+ * @title   IERC20Metadata
+ *          Interface for the optional metadata part of the ERC20 standard. https://eips.ethereum.org/EIPS/eip-20
+ * @author  @mighty_hotdog 2025-03-15
+ * @dev     Although not explicitly specified in the standard itself, none of these functions should ever revert.
  */
-abstract contract ERC20Metadata is ERC20Core {
-    uint8 private constant DECIMALS = 18;
-    string private _name;
-    string private _symbol;
-
-    constructor(string memory name_, string memory symbol_) {
-        _name = name_;
-        _symbol = symbol_;
-    }
-
+interface IERC20Metadata {
     /**
      * @notice  name()
      *          Returns the name of the token, as set in the constructor.
      * @dev     Essentially a getter function, hence never reverts.
      */
-    function name() public view virtual returns (string memory) {
-        return _name;
-    }
+    function name() external view returns (string memory);
 
     /**
      * @notice  symbol()
      *          Returns the symbol of the token, as set in the constructor.
      * @dev     Essentially a getter function, hence never reverts.
      */
-    function symbol() public view virtual returns (string memory) {
-        return _symbol;
-    }
+    function symbol() external view returns (string memory);
 
     /**
      * @notice  decimals()
@@ -52,7 +35,5 @@ abstract contract ERC20Metadata is ERC20Core {
      * @dev     This implementation defaults to 18, but can be overridden to return a different value.
      * @dev     Essentially a getter function, hence never reverts.
      */
-    function decimals() public pure virtual returns (uint8) {
-        return DECIMALS;
-    }
+    function decimals() external view returns (uint8);
 }
