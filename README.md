@@ -82,18 +82,7 @@ forge build
 ```
 
 ## TODOs
-1. ~~ownership mechanism~~ DONE
-2. ~~pausable mechanism~~ DONE
-3. ~~capping mechanism~~ DONE
-4. ~~wrapper mechanism~~ DONE
-5. ~~ERC677 extension~~ DONE
-6. ~~ERC165 extension~~ DONE
-7. ~~ERC2612 aka permit extension~~ DONE
-8. ERC4626 extension
-9. ERC1155 extension
-10. ERC4337 extension
-11. ERC3156 extension
-12. ~~separate interface from implementation~~ DONE
-    1. ~~ERC677~~ done
-    2. ~~ERC20Core~~ done
-    3. ~~ERC2612~~ done
+1. ERC4626 extension
+2. ERC1155 extension
+3. ERC4337 extension
+4. ERC3156 extension

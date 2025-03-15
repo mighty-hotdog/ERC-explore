@@ -1,4 +1,4 @@
-# ERC677 notes
+# ERC677 - "transferAndCall" extension to ERC20
 
 ## ERC20 vs ERC677
 ### sender sends ERC20 tokens to receiver ##################################################
