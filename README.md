@@ -1,9 +1,9 @@
-## Exploring ERC20
+# Exploring ERC20
 
 This project explores ERC20 and other related standards that form the foundation of the Ethereum crypto-defi-verse.  
 https://eips.ethereum.org/EIPS/eip-20  
 
-Related token standards:  
+## Related token standards:  
 
 -   **ERC223**: Replaces ERC20 standard.  
                 Modifies original ERC20 `transfer()` function to call a `tokenReceived()` function on the receiver  
