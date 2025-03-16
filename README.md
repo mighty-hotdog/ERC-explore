@@ -41,6 +41,9 @@ https://eips.ethereum.org/EIPS/eip-20
 -   **ERC1155**: Multi token standard. Provides standard interface for contracts that manage multiple token types.  
                  https://eips.ethereum.org/EIPS/eip-1155  
 
+-   **ERC6909**: Minimal multi token standard.  
+                 https://eips.ethereum.org/EIPS/eip-6909  
+
 -   **ERC3156**: Flash loan standard.  
                  https://eips.ethereum.org/EIPS/eip-3156  
 
@@ -79,5 +82,6 @@ forge build
 ## TODOs
 1. ERC4626 extension
 2. ERC1155 extension
-3. ERC4337 extension
-4. ERC3156 extension
+3. ERC6909 extension
+4. ERC4337 extension
+5. ERC3156 extension
