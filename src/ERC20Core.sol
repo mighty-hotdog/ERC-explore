@@ -11,6 +11,8 @@ import {IERC20} from "./IERC20.sol";
  *          created 2025-03-10
  *          modified 2025-03-14
  *              separated the ERC20 interface into its own contract IERC20
+ *          modified 2025-03-18
+ *              slight amendment to _updateTokens() revert message for transfer
  * @dev     This contract cannot be used on its own but is intended to be inherited into other contracts.
  * @dev     ReentrancyGuard from OpenZeppelin is used to guard against reentrancy.
  */
@@ -183,7 +185,7 @@ abstract contract ERC20Core is IERC20, ReentrancyGuard {
         } else if ((_from != address(0)) && (_to != address(0))) {
             // transfer
             if (_value > _balances[_from]) {
-                revert("ERC20Core: transfer amount exceeds balance");
+                revert("ERC20Core: transfer amount exceeds sender balance");
             }
             _balances[_from] -= _value;
             _balances[_to] += _value;

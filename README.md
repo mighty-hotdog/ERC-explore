@@ -81,7 +81,7 @@ forge build
 
 ## TODOs
 1. ERC4626 extension
-2. ERC1155 extension
+2. ~~ERC1155 extension~~ DONE
 3. ERC6909 extension
 4. ERC4337 extension
 5. ERC3156 extension

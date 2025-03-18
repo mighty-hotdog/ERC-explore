@@ -4,7 +4,10 @@ pragma solidity ^0.8.28;
 /**
  * @title   ERC165
  *          An implementation of the ERC165 standard. https://eips.ethereum.org/EIPS/eip-165
- * @author  @mighty_hotdog 2025-03-14
+ * @author  @mighty_hotdog
+ *          created 2025-03-14
+ *          modified 2025-03-18
+ *              slight amendments to constructor comments
  *
  * @dev     This implementation uses the mapping implementation described in the ERC165 document.
  * @dev     Developers should note how ERC165 defines interfaces and how interface ids are created.
@@ -26,7 +29,7 @@ abstract contract ERC165 {
      *          Adds the ERC165 interface, as well as any interfaces provided, to the list of supported interfaces.
      * @param   interfaceIds    array of interface identifiers to be added to supported list
      *
-     * @dev     The ERC165 interface id need not be included in the interfaceIds array. It will be added by default in construction.
+     * @dev     No need to include ERC165 interface in the input array. Constructor adds it by default.
      * @dev     Logic is shifted to _onCreation() to facilitate overriding if desired.
      * @dev     Reverts if 0xffffffff is included in the interfaceIds array.
      */
