@@ -10,9 +10,11 @@ import {ERC20Core} from "./ERC20Core.sol";
  *          created 2025-03-10
  *          modified 2025-03-14
  *              modified hardcoded decimals() function to use private DECIMALS constant instead
+ *          modified 2025-03-19
+ *              changed name of constant DECIMALS to ERC20METADATA_DECIMALS to avoid name conflict with inheriting contracts
  */
 abstract contract ERC20Metadata is ERC20Core {
-    uint8 private constant DECIMALS = 18;
+    uint8 private constant ERC20METADATA_DECIMALS = 18;
     string private _name;
     string private _symbol;
 
@@ -53,6 +55,6 @@ abstract contract ERC20Metadata is ERC20Core {
      * @dev     Essentially a getter function, hence never reverts.
      */
     function decimals() public pure virtual returns (uint8) {
-        return DECIMALS;
+        return ERC20METADATA_DECIMALS;
     }
 }
