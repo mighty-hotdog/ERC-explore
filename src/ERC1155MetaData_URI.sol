@@ -5,7 +5,10 @@ pragma solidity ^0.8.28;
  * @title   ERC1155Metadata_URI
  *          An implementation for the optional ERC1155Metadata_URI extension described in the ERC1155 standard.
  *          https://eips.ethereum.org/EIPS/eip-1155#metadata
- * @author  @mighty_hotdog 2025-03-18
+ * @author  @mighty_hotdog
+ *          created 2025-03-18
+ *          modified 2025-04-10
+ *              made `_trailer` a constant
  */
 abstract contract ERC1155Metadata_URI {
     /**
@@ -17,7 +20,7 @@ abstract contract ERC1155Metadata_URI {
      *          hexadecimal byte array padded to 64 characters.
      */
     bytes private _baseURI;
-    bytes private _trailer = ".json";
+    bytes private constant _trailer = ".json";
 
     /**
      * @notice  constructor()

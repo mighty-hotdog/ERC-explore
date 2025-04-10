@@ -7,7 +7,7 @@ import {IERC677Receiver} from "./IERC677Receiver.sol";
 
 /**
  * @title   ERC677
- *          An implementation of the ERC677 standard https://eips.ethereum.org/EIPS/eip-677.
+ *          An implementation of the ERC677 standard https://github.com/ethereum/EIPs/issues/677.
  * @author  @mighty_hotdog 2025-03-14
  * @dev     This contract cannot be used on its own but is intended to be inherited into other contracts.
  */

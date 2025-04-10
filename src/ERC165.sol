@@ -8,6 +8,8 @@ pragma solidity ^0.8.28;
  *          created 2025-03-14
  *          modified 2025-03-18
  *              slight amendments to constructor comments
+ *          modified 2025-04-10
+ *              modified `supportedInterfaces` state variable name to `_supportedInterfaces` to avoid variable shadowing
  *
  * @dev     This implementation uses the mapping implementation described in the ERC165 document.
  * @dev     Developers should note how ERC165 defines interfaces and how interface ids are created.
@@ -22,7 +24,7 @@ abstract contract ERC165 {
     bytes4 internal constant NULL_INTERFACE_ID = 0xffffffff;
 
     // state variables
-    mapping(bytes4 => bool) private supportedInterfaces;    // stores whether an interface is supported by this contract
+    mapping(bytes4 => bool) private _supportedInterfaces;    // stores whether an interface is supported by this contract
 
     /**
      * @notice  constructor()
@@ -48,7 +50,7 @@ abstract contract ERC165 {
      *          - false for any other interfaceId
      */
     function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
-        return supportedInterfaces[interfaceId];
+        return _supportedInterfaces[interfaceId];
     }
 
     /**
@@ -85,6 +87,6 @@ abstract contract ERC165 {
         if (interfaceId == NULL_INTERFACE_ID) {
             revert("ERC165: trying to add invalid interface id (0xffffffff)");
         }
-        supportedInterfaces[interfaceId] = true;
+        _supportedInterfaces[interfaceId] = true;
     }
 }

@@ -11,6 +11,10 @@ import {Pausable} from "./Pausable.sol";
  *          A wrapper for ERC20 tokens.
  * @author  @mighty_hotdog
  *          created 2025-03-12
+ *          modified 2025-04-10
+ *              reentrancy fix: statements in _deposit(), _depositFor(), _withdraw(), _withdrawTo() have been
+ *              reordered such that the external function calls are made after state variables have been updated
+ *              and events have been emitted.
  * @dev     This contract allows users to deposit/withdraw an underlying ERC20 token, and get back
  *          a matching number of a "wrapped" ERC20 token.
  *
@@ -156,6 +160,9 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
      *          Contains the logic for the public function deposit().
      * @param   _value      amount of underlying tokens caller wishes to deposit
      * @param   emitEvent   flag to control whether to emit deposit event
+     *
+     * @dev     2025-04-10: The steps are reordered such that external call ERC20Core.transferFrom()
+     *          is made after state variables have been updated and the event has been emitted.
      */
     function _deposit(uint256 _value, bool emitEvent) internal virtual {
         // Depositing to self creates a malicious circular loop logic that destroys contract
@@ -165,7 +172,15 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
             revert("ERC20Wrapper: wrapped token cannot deposit to self");
         }
 
-        // Step 1: Caller transfers underlying token from self to ERC20Wrapper.
+        // Step 1: Caller mints matching amount of wrapped tokens to self.
+
+        // Since mint() is in the same contract as deposit(), its caller here remains the
+        //  same - msg.sender. So basically the caller (ie: msg.sender) calls mint() on the
+        //  ERC20Wrapper contract to mint ERC20Wrapper wrapped tokens to self.
+        //      ie: msg.sender <<calls>> ERC20Wrapper.mint()
+        mint(msg.sender, _value);
+
+        // Step 2: Caller transfers underlying token from self to ERC20Wrapper.
 
         // Basically msg.sender is the caller who calls deposit() on the ERC20Wrapper
         //  contract.
@@ -177,18 +192,10 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
         //      ie: ERC20Wrapper <<calls>> underlyingToken.transferFrom()
         // This means ERC20Wrapper is the spender that msg.sender needs to approve 1st with an
         //  appropriate allowance of underlying tokens.
-        ERC20Core(underlying()).transferFrom(msg.sender, address(this), _value);
         if (emitEvent) {
             emit ERC20Wrapper_DepositedUnderlyingTokens(_value);
         }
-
-        // Step 2: Caller mints matching amount of wrapped tokens to self.
-
-        // Since mint() is in the same contract as deposit(), its caller here remains the
-        //  same - msg.sender. So basically the caller (ie: msg.sender) calls mint() on the
-        //  ERC20Wrapper contract to mint ERC20Wrapper wrapped tokens to self.
-        //      ie: msg.sender <<calls>> ERC20Wrapper.mint()
-        mint(msg.sender, _value);
+        ERC20Core(underlying()).transferFrom(msg.sender, address(this), _value);
     }
 
     /**
@@ -197,6 +204,9 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
      * @param   _to         recipient address to deposit wrapped tokens to
      * @param   _value      amount of underlying tokens caller wishes to deposit
      * @param   emitEvent   flag to control whether to emit deposit event
+     *
+     * @dev     2025-04-10: The steps are reordered such that external call ERC20Core.transferFrom()
+     *          is made after state variables have been updated and the event has been emitted.
      */
     function _depositFor(address _to, uint256 _value, bool emitEvent) internal virtual {
         // Depositing to self or minting to self creates a malicious circular loop logic that
@@ -209,7 +219,15 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
             revert("ERC20Wrapper: wrapped token cannot mint to itself");
         }
 
-        // Step 1: Caller transfers underlying token from self to ERC20Wrapper.
+        // Step 1: Caller mints matching amount of wrapped tokens to specified recipient.
+
+        // Since mint() is in the same contract as depositFor(), its caller here remains the
+        //  same - msg.sender. So basically the caller (ie: msg.sender) calls mint() on the
+        //  ERC20Wrapper contract to mint ERC20Wrapper wrapped tokens to recipient.
+        //      ie: msg.sender <<calls>> ERC20Wrapper.mint()
+        mint(_to, _value);
+
+        // Step 2: Caller transfers underlying token from self to ERC20Wrapper.
 
         // Basically msg.sender is the caller who calls depositFor() on the ERC20Wrapper
         //  contract.
@@ -221,18 +239,10 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
         //      ie: ERC20Wrapper <<calls>> underlyingToken.transferFrom()
         // This means ERC20Wrapper is the spender that msg.sender needs to approve 1st with an
         //  appropriate allowance of underlying tokens.
-        ERC20Core(underlying()).transferFrom(msg.sender, address(this), _value);
         if (emitEvent) {
             emit ERC20Wrapper_DepositedUnderlyingTokens(_value);
         }
-
-        // Step 2: Caller mints matching amount of wrapped tokens to specified recipient.
-
-        // Since mint() is in the same contract as depositFor(), its caller here remains the
-        //  same - msg.sender. So basically the caller (ie: msg.sender) calls mint() on the
-        //  ERC20Wrapper contract to mint ERC20Wrapper wrapped tokens to recipient.
-        //      ie: msg.sender <<calls>> ERC20Wrapper.mint()
-        mint(_to, _value);
+        ERC20Core(underlying()).transferFrom(msg.sender, address(this), _value);
     }
 
     /**
@@ -240,6 +250,9 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
      *          Contains the logic for the public function withdraw().
      * @param   _value      amount of underlying tokens caller wishes to withdraw
      * @param   emitEvent   flag to control whether to emit withdraw event
+     *
+     * @dev     2025-04-10: The external call ERC20Core.transfer() is shifted to the end after
+     *          the event has been emitted.
      */
     function _withdraw(uint256 _value, bool emitEvent) internal virtual {
         // Withdrawing to self creates a malicious circular loop logic that destroys contract
@@ -265,10 +278,10 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
         // From within withdraw(), ERC20Wrapper calls transfer() on the underlyingToken contract
         //  to transfer matching amount of underlying tokens from its own balance to caller.
         //      ie: ERC20Wrapper <<calls>> underlyingToken.transfer()
-        ERC20Core(underlying()).transfer(msg.sender, _value);
         if (emitEvent) {
             emit ERC20Wrapper_WithdrawnUnderlyingTokens(_value);
         }
+        ERC20Core(underlying()).transfer(msg.sender, _value);
     }
 
     /**
@@ -276,6 +289,9 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
      * @param   _to         recipient address to deposit underlying tokens to
      * @param   _value      amount of underlying tokens caller wishes to withdraw
      * @param   emitEvent   flag to control whether to emit withdraw event
+     *
+     * @dev     2025-04-10: The external call ERC20Core.transfer() is shifted to the end after
+     *          the event has been emitted.
      */
     function _withdrawTo(address _to, uint256 _value, bool emitEvent) internal virtual {
         // Withdrawing to self creates a malicious circular loop logic that destroys contract
@@ -301,9 +317,9 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
         // From within withdrawTo(), ERC20Wrapper calls transfer() on the underlyingToken contract
         //  to transfer matching amount of underlying tokens from its own balance to recipient.
         //      ie: ERC20Wrapper <<calls>> underlyingToken.transfer()
-        ERC20Core(underlying()).transfer(msg.sender, _value);
         if (emitEvent) {
             emit ERC20Wrapper_WithdrawnUnderlyingTokens(_value);
         }
+        ERC20Core(underlying()).transfer(msg.sender, _value);
     }
 }

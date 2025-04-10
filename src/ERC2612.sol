@@ -10,6 +10,9 @@ import {ERC20Core} from "./ERC20Core.sol";
  *          created 2025-03-13
  *          modified 2025-03-14
  *              added comment to specify that the ERC2612_Permit() event is specific to this implementation
+ *          modified 2025-04-10
+ *              added description of the vulnerability of permission expiry checking as specified in the standard
+ *              proposed an improvement based on number of blocks instead of timestamp
  */
 abstract contract ERC2612 is ERC20Core {
     // events /////////////////////////////////////////////////////////////////////
@@ -78,6 +81,11 @@ abstract contract ERC2612 is ERC20Core {
      *          Alternative is to use the recover() function from OpenZeppelin's ECDSA library.
      *          This introduces a dependency (ie: OpenZeppelin) and costs slightly more gas, but solves the signature malleability issue.
      *          It also offers several overloaded versions of the same function that takes in different representations of the signature.
+     *
+     * @dev     The ERC2612 standard specifies setting a time-based deadline and checks whether the signature is expired by comparing this
+     *          deadline to the current block timestamp. Miners can manipulate this block timestamp.
+     *          A better approach could be to set the deadline in terms of number of blocks, and then checking if this limit has been
+     *          surpassed.
      */
     function permit(
         address owner, 
