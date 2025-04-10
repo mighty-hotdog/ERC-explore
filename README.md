@@ -53,8 +53,8 @@ https://eips.ethereum.org/EIPS/eip-20
 -   **ERC721**: A standard interface for non-fungible tokens. Note the related ERC721a.  
                 https://eips.ethereum.org/EIPS/eip-721  
 
--   **ERC2981**: A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal  
-                 support for royalty payments across all NFT marketplaces and ecosystem participants.  
+-   **ERC2981**: A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable  
+                 universal support for royalty payments across all NFT marketplaces and ecosystem participants.  
                  https://eips.ethereum.org/EIPS/eip-2981  
 
 ## Requirements for compiling and running the project
