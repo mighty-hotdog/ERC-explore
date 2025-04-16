@@ -15,6 +15,9 @@ import {Pausable} from "./Pausable.sol";
  *              reentrancy fix: statements in _deposit(), _depositFor(), _withdraw(), _withdrawTo() have been
  *              reordered such that the external function calls are made after state variables have been updated
  *              and events have been emitted.
+ *          modified 2025-04-16
+ *              added comments for _deposit(), _depositFor(), _withdraw(), _withdrawTo() to clarify why their
+ *              return values may be safely ignored.
  * @dev     This contract allows users to deposit/withdraw an underlying ERC20 token, and get back
  *          a matching number of a "wrapped" ERC20 token.
  *
@@ -163,6 +166,8 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
      *
      * @dev     2025-04-10: The steps are reordered such that external call ERC20Core.transferFrom()
      *          is made after state variables have been updated and the event has been emitted.
+     * @dev     Note that ERC20Core.transferFrom() reverts on any failure and always returns true, 
+     *          hence its return value may be safely ignored.
      */
     function _deposit(uint256 _value, bool emitEvent) internal virtual {
         // Depositing to self creates a malicious circular loop logic that destroys contract
@@ -207,6 +212,8 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
      *
      * @dev     2025-04-10: The steps are reordered such that external call ERC20Core.transferFrom()
      *          is made after state variables have been updated and the event has been emitted.
+     * @dev     Note that ERC20Core.transferFrom() reverts on any failure and always returns true, 
+     *          hence its return value may be safely ignored.
      */
     function _depositFor(address _to, uint256 _value, bool emitEvent) internal virtual {
         // Depositing to self or minting to self creates a malicious circular loop logic that
@@ -253,6 +260,8 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
      *
      * @dev     2025-04-10: The external call ERC20Core.transfer() is shifted to the end after
      *          the event has been emitted.
+     * @dev     Note that ERC20Core.transfer() reverts on any failure and always returns true, 
+     *          hence its return value may be safely ignored.
      */
     function _withdraw(uint256 _value, bool emitEvent) internal virtual {
         // Withdrawing to self creates a malicious circular loop logic that destroys contract
@@ -292,6 +301,8 @@ abstract contract ERC20Wrapper is ERC20Core, ERC20Mintable, ERC20Burnable, Pausa
      *
      * @dev     2025-04-10: The external call ERC20Core.transfer() is shifted to the end after
      *          the event has been emitted.
+     * @dev     Note that ERC20Core.transfer() reverts on any failure and always returns true, 
+     *          hence its return value may be safely ignored.
      */
     function _withdrawTo(address _to, uint256 _value, bool emitEvent) internal virtual {
         // Withdrawing to self creates a malicious circular loop logic that destroys contract

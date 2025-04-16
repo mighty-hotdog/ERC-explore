@@ -8,7 +8,11 @@ import {IERC677Receiver} from "./IERC677Receiver.sol";
 /**
  * @title   ERC677
  *          An implementation of the ERC677 standard https://github.com/ethereum/EIPs/issues/677.
- * @author  @mighty_hotdog 2025-03-14
+ * @author  @mighty_hotdog
+ *          created 2025-03-14
+ *          modified 2025-04-16
+ *              _transferAndCall() modified to return boolean indicating success or failure
+ *              transferAndCall() modified to return result of _transferAndCall()
  * @dev     This contract cannot be used on its own but is intended to be inherited into other contracts.
  */
 abstract contract ERC677 is IERC677, ERC20Core {
@@ -19,6 +23,8 @@ abstract contract ERC677 is IERC677, ERC20Core {
      * @param   to      address to transfer to
      * @param   value   amount of tokens to be transferred
      * @param   data    additional data with no specified format, sent in onTokenTransfer() call to `to`
+     *
+     * @dev     returns true indicating success and false indicating failure
      * @dev     caller == msg.sender
      * @dev     reverts if to == address(0)
      * @dev     if recipient is a contract, calls onTokenTransfer() on it
@@ -26,8 +32,7 @@ abstract contract ERC677 is IERC677, ERC20Core {
      * @dev     Logic shifted to _transferAndCall() to facilitate more flexible overidding.
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
-        _transferAndCall(to, value, data, true);
-        return true;
+        return _transferAndCall(to, value, data, true);
     }
 
     /**
@@ -37,15 +42,20 @@ abstract contract ERC677 is IERC677, ERC20Core {
      * @param   value       amount of tokens to be transferred
      * @param   data        additional data with no specified format, sent in onTokenTransfer() call to `to`
      * @param   emitEvent   whether to emit Transfer() event
+     *
+     * @dev     returns true indicating success and false indicating failure
      */
-    function _transferAndCall(address to, uint256 value, bytes memory data, bool emitEvent) internal virtual {
+    function _transferAndCall(address to, uint256 value, bytes memory data, bool emitEvent) internal virtual returns (bool) {
+        // the return value here is ignored because the ERC20Core implementation of this transfer() function reverts on any
+        //  failure and always returns true
         super.transfer(to, value);
         if (emitEvent) {
             emit Transfer(msg.sender, to, value, data);
         }
         if (isContract(to)) {
-            IERC677Receiver(to).onTokenTransfer(msg.sender, value, data);
+            return IERC677Receiver(to).onTokenTransfer(msg.sender, value, data);
         }
+        return true;
     }
 
     /**

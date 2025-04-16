@@ -13,8 +13,16 @@ import {IERC20} from "./IERC20.sol";
  *              separated the ERC20 interface into its own contract IERC20
  *          modified 2025-03-18
  *              slight amendment to _updateTokens() revert message for transfer
+ *          modified 2025-04-16
+ *              added comments clarifying return values and reverts for transfer() and transferFrom()
+ *
  * @dev     This contract cannot be used on its own but is intended to be inherited into other contracts.
  * @dev     ReentrancyGuard from OpenZeppelin is used to guard against reentrancy.
+ *
+ * @dev     2025-04-16: comments added
+ *          This implementation complies fully with the standard to return a boolean value for both the transfer()
+ *          and transferFrom() functions to indicate success or failure. In effect however, any failure triggers 
+ *          a revert and the return value is always TRUE indicating success.
  */
 abstract contract ERC20Core is IERC20, ReentrancyGuard {
     // state variables ////////////////////////////////////////////////////////////
@@ -61,6 +69,11 @@ abstract contract ERC20Core is IERC20, ReentrancyGuard {
      * @dev     Can be overridden to implement additional logic, eg: more restrictions.
      *          Any override should also call _updateTokens() or its overridden version to effect the needed
      *          state changes.
+     *
+     * @dev     2025-04-16: comments added
+     *          This implementation complies fully with the standard to return a boolean value for both the transfer()
+     *          and transferFrom() functions to indicate success or failure. In effect however, the return value is 
+     *          always TRUE indicating success while any failure triggers a revert.
      */
     function transfer(address _to, uint256 _value) public virtual nonReentrant returns (bool) {
         if (_to == address(0)) {
@@ -97,6 +110,11 @@ abstract contract ERC20Core is IERC20, ReentrancyGuard {
      * @dev     Can be overridden to implement additional logic, eg: more restrictions.
      *          Any override should also call _spendAllowance() and _updateTokens() or their overridden versions
      *          to effect the needed state changes.
+     *
+     * @dev     2025-04-16: comments added
+     *          This implementation complies fully with the standard to return a boolean value for both the transfer()
+     *          and transferFrom() functions to indicate success or failure. In effect however, the return value is 
+     *          always TRUE indicating success while any failure triggers a revert.
      */
     function transferFrom(address _from, address _to, uint256 _value) public virtual nonReentrant returns (bool) {
         if (_from == address(0)) {
