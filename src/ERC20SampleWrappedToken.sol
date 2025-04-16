@@ -10,16 +10,18 @@ import {Pausable} from "./Pausable.sol";
 import {Ownable} from "./Ownable.sol";
 
 /**
- * @title   ERC20SampleCustomToken
- *          A sample contract for a custom ERC20 token.
+ * @title   ERC20SampleWrappedToken
+ *          A sample contract for a wrapped ERC20 token.
  * @author  @mighty_hotdog
  *          created 2025-03-10
  *          modified 2025-03-11
  *              to add capping functionality with new ERC20Mintable
  *              to add pausing functionality with ERC20Pausable
  *              to add ownership functionality with ERC20Ownable
+ *          modified 2025-04-16
+ *              modified contract name from `ERC20SampleCustomToken` to `ERC20SampleWrappedToken`
  */
-contract ERC20SampleCustomToken is ERC20Core, ERC20Metadata, ERC20Wrapper, Ownable {
+contract ERC20SampleWrappedToken is ERC20Core, ERC20Metadata, ERC20Wrapper, Ownable {
     // constants
     uint256 public constant MAX_TOKEN_SUPPLY = type(uint256).max;
     uint8 public constant DECIMALS = 8;
