@@ -11,7 +11,7 @@ problems
 1. need at least 2 txns to complete single transfer
 2. receiver doesn't know if, who, how much, when allowance is granted to itself  
    => receiver needs to be informed so that it will proceed to call `transferFrom()`
-1. if receiver is a contract, it has no way to perform any action on receiving the tokens
+3. if receiver is a contract, it has no way to perform any action on receiving the tokens
 
 #### Method 2 - transfer()
 steps
