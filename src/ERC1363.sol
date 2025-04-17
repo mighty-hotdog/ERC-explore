@@ -7,6 +7,14 @@ import {IERC1363} from "./IERC1363.sol";
 import {IERC1363Receiver} from "./IERC1363Receiver.sol";
 import {IERC1363Spender} from "./IERC1363Spender.sol";
 
+/**
+ * @title   ERC1363
+ *          An implementation of the ERC1363 standard https://eips.ethereum.org/EIPS/eip-1363.
+ * @author  @mighty_hotdog 2025-04-17
+ *
+ * @dev     Outstanding TODOs:
+ *          1. Complete the natspec and code comments
+ */
 abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
     // constants //////////////////////////////////////////////////////////////////////////
     // interface IDs to be added by default to ERC165 supported list
