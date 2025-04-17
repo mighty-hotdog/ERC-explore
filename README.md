@@ -80,8 +80,10 @@ forge build
 ```
 
 ## TODOs
-1. ERC4626 extension
-2. ~~ERC1155 extension~~ DONE
-3. ERC6909 extension
-4. ERC4337 extension
-5. ERC3156 extension
+1. Complete ERC1363 implementation
+2. Add tests for the whole suite
+3. Implement ERC777 + tests
+4. Implement ERC4626 + tests
+5. Implement ERC6909 + tests
+6. Implement ERC4337 + tests
+7. Implement ERC3156 + tests

@@ -14,6 +14,7 @@ import {IERC1363Spender} from "./IERC1363Spender.sol";
  *
  * @dev     Outstanding TODOs:
  *          1. Complete the natspec and code comments
+ *          2. Create a sample ERC1363 token contract
  */
 abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
     // constants //////////////////////////////////////////////////////////////////////////
