@@ -15,6 +15,8 @@ import {IERC20} from "./IERC20.sol";
  *              slight amendment to _updateTokens() revert message for transfer
  *          modified 2025-04-16
  *              added comments clarifying return values and reverts for transfer() and transferFrom()
+ *          modified 2025-04-18
+ *              added comments to document doubts about applying ReentrancyGuard here as no function here does any external call.
  *
  * @dev     This contract cannot be used on its own but is intended to be inherited into other contracts.
  * @dev     ReentrancyGuard from OpenZeppelin is used to guard against reentrancy.
@@ -23,6 +25,10 @@ import {IERC20} from "./IERC20.sol";
  *          This implementation complies fully with the standard to return a boolean value for both the transfer()
  *          and transferFrom() functions to indicate success or failure. In effect however, any failure triggers 
  *          a revert and the return value is always TRUE indicating success.
+ *
+ * @dev     2025-04-18: comments added
+ *          The usefulness of ReentrancyGuard here is questionable because no function here does any external call.
+ *          More thinking on this required.
  */
 abstract contract ERC20Core is IERC20, ReentrancyGuard {
     // state variables ////////////////////////////////////////////////////////////

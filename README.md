@@ -74,14 +74,14 @@ forge install OpenZeppelin/openzeppelin-contracts --no-commit
 
 If you fulfill all the requirements described above, you may proceed to clone the project to your local machine and build it.
 ```
-git clone https://github.com/saracen75/ERC-explore
+git clone https://github.com/mighty-hotdog/ERC-explore
 cd ERC-explore
 forge build
 ```
 
 ## TODOs
 1. DONE ~~Complete ERC1363 implementation~~
-2. Implement OnlyOneCallGuard
+2. KIV ~~Implement OnlyOneCallGuard~~
 3. Add tests for the whole suite
 4. Implement ERC777 + tests
 5. Implement ERC4626 + tests

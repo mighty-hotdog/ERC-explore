@@ -20,20 +20,16 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
  *              modified transferFrom() and transferBatchFrom() to:
  *                  - allow owner to transfer own tokens without need for approval
  *                  - revert on _from == address(0), this logic is specific to this implementation
+ *          modified 2025-04-18
+ *              applied ReentrancyGuard only to functions that change state and then subsequently perform external calls
+ *              updated function comments to describe changes
  *
- * @dev     Outstanding TODOs:
- *          1. DONE Check that all "rules" as defined in the ERC1155 standard have been implemented and are correct.
- *          2. DONE Implement URI function.
- *          3. DONE Implement the mint and burn functions.
- *          4. DONE Add reentrancy protection.
- *              Added OpenZep's ReentrancyGuard, but is it enough?
- *              How about an OnlyOneCallGuard that offers:
- *              - contract-wide reentrancy guard (like ReentrancyGuard)
- *              - function-specific reentrancy guard
- *              - flow-specific reentrancy guard
- *                ie: specify a particular function flow, then define and apply a reentrancy guard to that flow
- *          5. NOT NEEDED Add a sample ERC1155 contract that brings everything together in a working contract.
- *          6. NOT NEEDED Add a sample ERC1155TokenReceiver contract that implements IERC1155TokenReceiver.
+ * @dev     Question: Is OpenZep's ReentrancyGuard sufficient to protect against reentrancy?
+ *          How about an OnlyOneCallGuard that offers:
+ *          - contract-wide reentrancy guard (like ReentrancyGuard)
+ *          - function-specific reentrancy guard
+ *          - flow-specific reentrancy guard
+ *          ie: specify a particular function flow, then define and apply a reentrancy guard to that flow
  *
  * @dev     Question: How to ensure states are in-sync between the ERC1155 contract and the individual token contracts?
  *          eg: total token supply, balances, approvals/allowances, etc.
@@ -99,7 +95,7 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      */
     function safeTransferFrom(
         address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data
-        ) public virtual nonReentrant {
+        ) public virtual {
         _safeTransferFrom(_from, _to, _id, _value, _data);
     }
 
@@ -127,7 +123,7 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      */
     function safeBatchTransferFrom(
         address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data
-        ) public virtual nonReentrant {
+        ) public virtual {
         _safeBatchTransferFrom(_from, _to, _ids, _values, _data);
     }
 
@@ -150,9 +146,7 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      *          Calls onERC1155Received() on _to contract and checks return value.
      *          Reverts if onERC1155Received() return value is not ERC1155_SINGLE_TRANSFER_ACCEPTED.
      */
-    function mint(
-        address _to, uint256 _id, uint256 _value, bytes calldata _data
-        ) public virtual nonReentrant {
+    function mint(address _to, uint256 _id, uint256 _value, bytes calldata _data) public virtual {
         _mint(_to, _id, _value, _data);
     }
 
@@ -176,9 +170,7 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      *          Calls onERC1155BatchReceived() on _to contract and checks return value.
      *          Reverts if onERC1155BatchReceived() return value is not ERC1155_BATCH_TRANSFER_ACCEPTED.
      */
-    function mintBatch(
-        address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data
-        ) public virtual nonReentrant {
+    function mintBatch(address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) public virtual {
         _mintBatch(_to, _ids, _values, _data);
     }
 
@@ -197,7 +189,7 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      * @dev     Reverts if _from == address(0).
      * @dev     Emits TransferSingle() event on successful burn.
      */
-    function burn(address _from, uint256 _id, uint256 _value) public virtual nonReentrant {
+    function burn(address _from, uint256 _id, uint256 _value) public virtual {
         _burn(_from, _id, _value);
     }
 
@@ -219,7 +211,7 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      */
     function burnBatch(
         address _from, uint256[] calldata _ids, uint256[] calldata _values
-        ) public virtual nonReentrant {
+        ) public virtual {
         _burnBatch(_from, _ids, _values);
     }
 
@@ -281,8 +273,6 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      * @dev     Caller == msg.sender == owner of the tokens.
      * @dev     Reverts if _operator == address(0).
      * @dev     Emits ApprovalForAll() event.
-     *
-     * @dev     Is nonReentrant modifier needed here?
      */
     function setApprovalForAll(address _operator, bool _approved) public virtual {
         _updateApprovals(msg.sender, _operator, _approved);
@@ -314,8 +304,12 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      * @param   _id     token ID, indicating token type
      * @param   _value  amount of tokens to transfer
      * @param   _data   optional data
+     *
+     * @dev     ReentrancyGuard applied here because this function changes state and then subsequently makes an external call.
      */
-    function _safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) internal virtual {
+    function _safeTransferFrom(
+        address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data
+        ) internal virtual nonReentrant {
         if (_from == address(0)) {
             revert("ERC1155: transfer from address(0)");
         }
@@ -346,10 +340,12 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      * @param   _ids    array of token IDs to transfer
      * @param   _values array of amounts of each token to transfer
      * @param   _data   optional data
+     *
+     * @dev     ReentrancyGuard applied here because this function changes state and then subsequently makes an external call.
      */
     function _safeBatchTransferFrom(
         address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data
-        ) internal virtual {
+        ) internal virtual nonReentrant {
         if (_from == address(0)) {
             revert("ERC1155: transfer from address(0)");
         }
@@ -384,8 +380,10 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      * @param   _id     token ID, indicating token type
      * @param   _value  amount of tokens to mint
      * @param   _data   optional data
+     *
+     * @dev     ReentrancyGuard applied here because this function changes state and then subsequently makes an external call.
      */
-    function _mint(address _to, uint256 _id, uint256 _value, bytes calldata _data) internal virtual {
+    function _mint(address _to, uint256 _id, uint256 _value, bytes calldata _data) internal virtual nonReentrant {
         if (_to == address(0)) {
             revert("ERC1155: mint to address(0)");
         }
@@ -409,8 +407,12 @@ abstract contract ERC1155 is IERC1155, ERC1155Metadata_URI, ERC165, ReentrancyGu
      * @param   _ids    array of token IDs to mint
      * @param   _values array of amounts of each token to mint
      * @param   _data   optional data
+     *
+     * @dev     ReentrancyGuard applied here because this function changes state and then subsequently makes an external call.
      */
-    function _mintBatch(address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) internal virtual {
+    function _mintBatch(
+        address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data
+        ) internal virtual nonReentrant {
         if (_to == address(0)) {
             revert("ERC1155: mint to address(0)");
         }

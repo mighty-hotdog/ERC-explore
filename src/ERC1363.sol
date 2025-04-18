@@ -14,18 +14,14 @@ import {IERC1363Spender} from "./IERC1363Spender.sol";
  *          created 2025-04-17
  *          modified 2025-04-18
  *              added natspecs and code comments
- *              added comments describing reentrancy difficulties in this implementation and a proposal for a solution
+ *              applied ReentrancyGuard to protect against reentrancy and added associated comments to describe it
  *
  * @dev     This contract cannot be used on its own but is intended to be inherited into other contracts.
  *
- * @dev     The transferAndCall(), transferFromAndCall(), approveAndCall() functions are all vulnerable to reentrancy.
- *          However ReentrancyGuard from OpenZeppelin may not be inherited and applied here because it would cause a
- *          compiler error as ReentrancyGuard is already inherited in ERC20Core.
- *          Perhaps it is time to finally implement OnlyOneCallGuard to offer:
- *              - contract-wide reentrancy guard (like ReentrancyGuard)
- *              - function-specific reentrancy guard
- *              - flow-specific reentrancy guard
- *                ie: specify a particular function flow, then define and apply a reentrancy guard to that flow
+ * @dev     ReentrancyGuard from OpenZeppelin may not be inherited here again because it has already been inherited in
+ *          ERC20Core. It may however still be used here to protect against reentrancy.
+ * @dev     ReentrancyGuard is applied here for functions that change state and subsequently perform external calls:
+ *              _transferAndCall(), _transferFromAndCall(), _approveAndCall().
  */
 abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
     // constants //////////////////////////////////////////////////////////////////////////
@@ -67,6 +63,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      *          Fires a Transfer event. This is not specified in the ERC1363 standard and is specific to this implementation.
      * @param   to      recipient address to transfer to
      * @param   value   amount of tokens to transfer
+     * @dev     returns true unless reverted
      *
      * @dev     caller == msg.sender
      * @dev     recipient can be a contract or an EOA, standard doesn't specify
@@ -76,7 +73,6 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @dev     value == 0 allowed and valid
      * @dev     reverts if `onTransferReceived()` call on recipient reverts
      * @dev     reverts if `onTransferReceived()` call on recipient returns value != ERC1363_TRANSFER_ACCEPTED
-     * @dev     returns true unless reverted
      *
      * @dev     Logic shifted to _transferAndCall() to facilitate more flexible overriding.
      */
@@ -92,6 +88,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @param   to      recipient address to transfer to
      * @param   value   amount of tokens to transfer
      * @param   data    additional data with no specified format, sent in `onTransferReceived()` call to recipient
+     * @dev     returns true unless reverted
      *
      * @dev     caller == msg.sender
      * @dev     recipient can be a contract or an EOA, standard doesn't specify
@@ -101,7 +98,6 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @dev     value == 0 allowed and valid
      * @dev     reverts if `onTransferReceived()` call on recipient reverts
      * @dev     reverts if `onTransferReceived()` call on recipient returns value != ERC1363_TRANSFER_ACCEPTED
-     * @dev     returns true unless reverted
      *
      * @dev     Logic shifted to _transferAndCall() to facilitate more flexible overriding.
      */
@@ -117,6 +113,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @param   from    source address to transfer from
      * @param   to      recipient address to transfer to
      * @param   value   amount of tokens to transfer
+     * @dev     returns true unless reverted
      *
      * @dev     caller == msg.sender == spender
      * @dev     source and recipient can be each be a contract or an EOA, standard doesn't specify
@@ -128,7 +125,6 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @dev     value == 0 allowed and valid
      * @dev     reverts if `onTransferReceived()` call on recipient reverts
      * @dev     reverts if `onTransferReceived()` call on recipient returns value != ERC1363_TRANSFER_ACCEPTED
-     * @dev     returns true unless reverted
      *
      * @dev     Logic shifted to _transferFromAndCall() to facilitate more flexible overriding.
      */
@@ -145,6 +141,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @param   to      recipient address to transfer to
      * @param   value   amount of tokens to transfer
      * @param   data    additional data with no specified format, sent in `onTransferReceived()` call to recipient
+     * @dev     returns true unless reverted
      *
      * @dev     caller == msg.sender == spender
      * @dev     source and recipient can be each be a contract or an EOA, standard doesn't specify
@@ -156,7 +153,6 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @dev     value == 0 allowed and valid
      * @dev     reverts if `onTransferReceived()` call on recipient reverts
      * @dev     reverts if `onTransferReceived()` call on recipient returns value != ERC1363_TRANSFER_ACCEPTED
-     * @dev     returns true unless reverted
      *
      * @dev     Logic shifted to _transferFromAndCall() to facilitate more flexible overriding.
      */
@@ -171,6 +167,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      *          Fires an Approval event. This is not specified in the ERC1363 standard and is specific to this implementation.
      * @param   spender spender address to grant allowance to
      * @param   value   allowance, ie: amount of tokens spender is allowed to spend from caller's balance
+     * @dev     returns true unless reverted
      *
      * @dev     caller == msg.sender
      * @dev     spender can be a contract or an EOA, standard doesn't specify
@@ -178,7 +175,6 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @dev     reverts if spender == address(0)
      * @dev     reverts if `onApprovalReceived()` call on spender reverts
      * @dev     reverts if `onApprovalReceived()` call on spender returns value != ERC1363_APPROVAL_ACCEPTED
-     * @dev     returns true unless reverted
      *
      * @dev     Logic shifted to _approveAndCall() to facilitate more flexible overriding.
      */
@@ -194,6 +190,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @param   spender spender address to grant allowance to
      * @param   value   allowance, ie: amount of tokens spender is allowed to spend from caller's balance
      * @param   data    additional data with no specified format, sent in `onApprovalReceived()` call to spender
+     * @dev     returns true unless reverted
      *
      * @dev     caller == msg.sender
      * @dev     spender can be a contract or an EOA, standard doesn't specify
@@ -201,7 +198,6 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      * @dev     reverts if spender == address(0)
      * @dev     reverts if `onApprovalReceived()` call on spender reverts
      * @dev     reverts if `onApprovalReceived()` call on spender returns value != ERC1363_APPROVAL_ACCEPTED
-     * @dev     returns true unless reverted
      *
      * @dev     Logic shifted to _approveAndCall() to facilitate more flexible overriding.
      */
@@ -221,7 +217,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      */
     function _transferAndCall(
         address to, uint256 value, bytes memory data, bool emitEvent
-        ) internal virtual returns (bool) {
+        ) internal virtual nonReentrant returns (bool) {
         super.transfer(to, value);
         if (emitEvent) {
             emit Transfer(msg.sender, to, value, data);
@@ -246,7 +242,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      */
     function _transferFromAndCall(
         address from, address to, uint256 value, bytes memory data, bool emitEvent
-        ) internal virtual returns (bool) {
+        ) internal virtual nonReentrant returns (bool) {
         super.transferFrom(from, to, value);
         if (emitEvent) {
             emit Transfer(from, to, value, data);
@@ -270,7 +266,7 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
      */
     function _approveAndCall(
         address spender, uint256 value, bytes memory data, bool emitEvent
-        ) internal virtual returns (bool) {
+        ) internal virtual nonReentrant returns (bool) {
         super.approve(spender, value);
         if (emitEvent) {
             emit Approval(msg.sender, spender, value, data);
