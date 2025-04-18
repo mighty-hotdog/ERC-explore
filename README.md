@@ -80,10 +80,11 @@ forge build
 ```
 
 ## TODOs
-1. Complete ERC1363 implementation
-2. Add tests for the whole suite
-3. Implement ERC777 + tests
-4. Implement ERC4626 + tests
-5. Implement ERC6909 + tests
-6. Implement ERC4337 + tests
-7. Implement ERC3156 + tests
+1. DONE ~~Complete ERC1363 implementation~~
+2. Implement OnlyOneCallGuard
+3. Add tests for the whole suite
+4. Implement ERC777 + tests
+5. Implement ERC4626 + tests
+6. Implement ERC6909 + tests
+7. Implement ERC4337 + tests
+8. Implement ERC3156 + tests
