@@ -80,15 +80,16 @@ forge build
 ```
 
 ## TODOs
-1. DONE ~~Complete ERC1363 implementation~~
-2. KIV ~~Implement OnlyOneCallGuard~~
-3. Create and run tests for the whole suite:
-   1. ERC20SampleCustomToken
-   2. ERC20SampleWrappedToken
-   3. ERC1155SampleMultiToken
-   4. ERC1363SampleCustomToken
-4. Implement ERC777 + tests
-5. Implement ERC4626 + tests
-6. Implement ERC6909 + tests
-7. Implement ERC4337 + tests
-8. Implement ERC3156 + tests
+1. DONE ~~Complete ERC1363 implementation~~  
+2. KIV ~~Implement OnlyOneCallGuard~~  
+3. Create and run tests for the whole suite.  
+   Tests to target following contracts but will exercise all code:  
+   1. ERC20SampleCustomToken  
+   2. ERC20SampleWrappedToken  
+   3. ERC1155SampleMultiToken  
+   4. ERC1363SampleCustomToken  
+4. Implement ERC777 + tests  
+5. Implement ERC4626 + tests  
+6. Implement ERC6909 + tests  
+7. Implement ERC4337 + tests  
+8. Implement ERC3156 + tests  
