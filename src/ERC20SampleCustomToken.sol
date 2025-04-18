@@ -75,7 +75,7 @@ contract ERC20SampleCustomToken is ERC20Core, ERC20Metadata, ERC20Mintable, ERC2
     bytes4 public constant ERC677_INTERFACE_ID = 
         bytes4(keccak256("transferAndCall(address,uint256,bytes)"));
 
-    // functions
+    // functions /////////////////////////////////////////////////////////
     constructor(address initialOwner, bytes4[] memory supportedInterfaceIds) 
             ERC20Mintable(MAX_TOKEN_SUPPLY) 
             ERC20Metadata("SampleCustomToken", "SCT") 

@@ -25,7 +25,7 @@ contract ERC1363SampleCustomToken is ERC1363, ERC20Metadata, ERC20Mintable, ERC2
         bytes4(keccak256("symbol()")) ^ 
         bytes4(keccak256("decimals()"));
 
-    // functions
+    // functions ////////////////////////////////////////////////////////
     constructor(address initialOwner, bytes4[] memory supportedInterfaceIds) 
             ERC1363(supportedInterfaceIds)
             ERC20Mintable(MAX_TOKEN_SUPPLY) 
