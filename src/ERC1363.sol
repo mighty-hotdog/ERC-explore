@@ -10,11 +10,22 @@ import {IERC1363Spender} from "./IERC1363Spender.sol";
 /**
  * @title   ERC1363
  *          An implementation of the ERC1363 standard https://eips.ethereum.org/EIPS/eip-1363.
- * @author  @mighty_hotdog 2025-04-17
+ * @author  @mighty_hotdog
+ *          created 2025-04-17
+ *          modified 2025-04-18
+ *              added natspecs and code comments
+ *              added comments describing reentrancy difficulties in this implementation and a proposal for a solution
  *
- * @dev     Outstanding TODOs:
- *          1. Complete the natspec and code comments
- *          2. Create a sample ERC1363 token contract
+ * @dev     This contract cannot be used on its own but is intended to be inherited into other contracts.
+ *
+ * @dev     The transferAndCall(), transferFromAndCall(), approveAndCall() functions are all vulnerable to reentrancy.
+ *          However ReentrancyGuard from OpenZeppelin may not be inherited and applied here because it would cause a
+ *          compiler error as ReentrancyGuard is already inherited in ERC20Core.
+ *          Perhaps it is time to finally implement OnlyOneCallGuard to offer:
+ *              - contract-wide reentrancy guard (like ReentrancyGuard)
+ *              - function-specific reentrancy guard
+ *              - flow-specific reentrancy guard
+ *                ie: specify a particular function flow, then define and apply a reentrancy guard to that flow
  */
 abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
     // constants //////////////////////////////////////////////////////////////////////////
@@ -37,31 +48,177 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
         bytes4(keccak256("onApprovalReceived(address,uint256,bytes)"));
 
     // functions //////////////////////////////////////////////////////////////////////////
+    /**
+     * @notice  constructor()
+     * @param   interfaceIds    array of supported interfaces
+     *
+     * @dev     No need to include ERC1363 and ERC20Core interfaces in input array.
+     *          Constructor adds them by default.
+     */
     constructor(bytes4[] memory interfaceIds) ERC165(interfaceIds) {
         super._addSupportedInterface(ERC1363_INTERFACE_ID);
         super._addSupportedInterface(ERC20Core_INTERFACE_ID);
     }
 
+    /**
+     * @notice  transferAndCall()
+     *          Transfers tokens from msg.sender to recipient.
+     *          Calls `onTransferReceived()` on recipient if it is a contract.
+     *          Fires a Transfer event. This is not specified in the ERC1363 standard and is specific to this implementation.
+     * @param   to      recipient address to transfer to
+     * @param   value   amount of tokens to transfer
+     *
+     * @dev     caller == msg.sender
+     * @dev     recipient can be a contract or an EOA, standard doesn't specify
+     *
+     * @dev     reverts if to == address(0)
+     * @dev     reverts if caller balance < value
+     * @dev     value == 0 allowed and valid
+     * @dev     reverts if `onTransferReceived()` call on recipient reverts
+     * @dev     reverts if `onTransferReceived()` call on recipient returns value != ERC1363_TRANSFER_ACCEPTED
+     * @dev     returns true unless reverted
+     *
+     * @dev     Logic shifted to _transferAndCall() to facilitate more flexible overriding.
+     */
     function transferAndCall(address to, uint256 value) public virtual returns (bool) {
         return _transferAndCall(to, value, "", true);
     }
+
+    /**
+     * @notice  transferAndCall()
+     *          Transfers tokens from msg.sender to recipient.
+     *          Calls `onTransferReceived()` on recipient with `data` if it is a contract.
+     *          Fires a Transfer event. This is not specified in the ERC1363 standard and is specific to this implementation.
+     * @param   to      recipient address to transfer to
+     * @param   value   amount of tokens to transfer
+     * @param   data    additional data with no specified format, sent in `onTransferReceived()` call to recipient
+     *
+     * @dev     caller == msg.sender
+     * @dev     recipient can be a contract or an EOA, standard doesn't specify
+     *
+     * @dev     reverts if to == address(0)
+     * @dev     reverts if caller balance < value
+     * @dev     value == 0 allowed and valid
+     * @dev     reverts if `onTransferReceived()` call on recipient reverts
+     * @dev     reverts if `onTransferReceived()` call on recipient returns value != ERC1363_TRANSFER_ACCEPTED
+     * @dev     returns true unless reverted
+     *
+     * @dev     Logic shifted to _transferAndCall() to facilitate more flexible overriding.
+     */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
         return _transferAndCall(to, value, data, true);
     }
+
+    /**
+     * @notice  transferFromAndCall()
+     *          Transfers tokens from source to recipient.
+     *          Calls `onTransferReceived()` on recipient if it is a contract.
+     *          Fires a Transfer event. This is not specified in the ERC1363 standard and is specific to this implementation.
+     * @param   from    source address to transfer from
+     * @param   to      recipient address to transfer to
+     * @param   value   amount of tokens to transfer
+     *
+     * @dev     caller == msg.sender == spender
+     * @dev     source and recipient can be each be a contract or an EOA, standard doesn't specify
+     *
+     * @dev     reverts if from == address(0)
+     * @dev     reverts if to == address(0)
+     * @dev     reverts if spender allowance < value
+     * @dev     reverts if source balance < value
+     * @dev     value == 0 allowed and valid
+     * @dev     reverts if `onTransferReceived()` call on recipient reverts
+     * @dev     reverts if `onTransferReceived()` call on recipient returns value != ERC1363_TRANSFER_ACCEPTED
+     * @dev     returns true unless reverted
+     *
+     * @dev     Logic shifted to _transferFromAndCall() to facilitate more flexible overriding.
+     */
     function transferFromAndCall(address from, address to, uint256 value) public virtual returns (bool) {
         return _transferFromAndCall(from, to, value, "", true);
     }
+
+    /**
+     * @notice  transferFromAndCall()
+     *          Transfers tokens from source to recipient.
+     *          Calls `onTransferReceived()` on recipient with `data` if it is a contract.
+     *          Fires a Transfer event. This is not specified in the ERC1363 standard and is specific to this implementation.
+     * @param   from    source address to transfer from
+     * @param   to      recipient address to transfer to
+     * @param   value   amount of tokens to transfer
+     * @param   data    additional data with no specified format, sent in `onTransferReceived()` call to recipient
+     *
+     * @dev     caller == msg.sender == spender
+     * @dev     source and recipient can be each be a contract or an EOA, standard doesn't specify
+     *
+     * @dev     reverts if from == address(0)
+     * @dev     reverts if to == address(0)
+     * @dev     reverts if spender allowance < value
+     * @dev     reverts if source balance < value
+     * @dev     value == 0 allowed and valid
+     * @dev     reverts if `onTransferReceived()` call on recipient reverts
+     * @dev     reverts if `onTransferReceived()` call on recipient returns value != ERC1363_TRANSFER_ACCEPTED
+     * @dev     returns true unless reverted
+     *
+     * @dev     Logic shifted to _transferFromAndCall() to facilitate more flexible overriding.
+     */
     function transferFromAndCall(address from, address to, uint256 value, bytes memory data) public virtual returns (bool) {
         return _transferFromAndCall(from, to, value, data, true);
     }
+
+    /**
+     * @notice  approveAndCall()
+     *          Grants approval to spender to spend tokens from caller balance.
+     *          Calls `onApprovalReceived()` on spender if it is a contract.
+     *          Fires an Approval event. This is not specified in the ERC1363 standard and is specific to this implementation.
+     * @param   spender spender address to grant allowance to
+     * @param   value   allowance, ie: amount of tokens spender is allowed to spend from caller's balance
+     *
+     * @dev     caller == msg.sender
+     * @dev     spender can be a contract or an EOA, standard doesn't specify
+     *
+     * @dev     reverts if spender == address(0)
+     * @dev     reverts if `onApprovalReceived()` call on spender reverts
+     * @dev     reverts if `onApprovalReceived()` call on spender returns value != ERC1363_APPROVAL_ACCEPTED
+     * @dev     returns true unless reverted
+     *
+     * @dev     Logic shifted to _approveAndCall() to facilitate more flexible overriding.
+     */
     function approveAndCall(address spender, uint256 value) public virtual returns (bool) {
         return _approveAndCall(spender, value, "", true);
     }
+
+    /**
+     * @notice  approveAndCall()
+     *          Grants approval to spender to spend tokens from caller balance.
+     *          Calls `onApprovalReceived()` on spender with `data` if it is a contract.
+     *          Fires an Approval event. This is not specified in the ERC1363 standard and is specific to this implementation.
+     * @param   spender spender address to grant allowance to
+     * @param   value   allowance, ie: amount of tokens spender is allowed to spend from caller's balance
+     * @param   data    additional data with no specified format, sent in `onApprovalReceived()` call to spender
+     *
+     * @dev     caller == msg.sender
+     * @dev     spender can be a contract or an EOA, standard doesn't specify
+     *
+     * @dev     reverts if spender == address(0)
+     * @dev     reverts if `onApprovalReceived()` call on spender reverts
+     * @dev     reverts if `onApprovalReceived()` call on spender returns value != ERC1363_APPROVAL_ACCEPTED
+     * @dev     returns true unless reverted
+     *
+     * @dev     Logic shifted to _approveAndCall() to facilitate more flexible overriding.
+     */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {
         return _approveAndCall(spender, value, data, true);
     }
 
     // internal and utility functions //////////////////////////////////////////////////////
+    /**
+     * @notice  _transferAndCall()
+     *          Contains logic for both transferAndCall() functions.
+     * @param   to          recipient address to transfer to
+     * @param   value       amount of tokens to transfer
+     * @param   data        additional data with no specified format, sent in `onTransferReceived()` call to recipient
+     * @param   emitEvent   whether to emit Transfer event
+     * @dev     returns true unless reverted
+     */
     function _transferAndCall(
         address to, uint256 value, bytes memory data, bool emitEvent
         ) internal virtual returns (bool) {
@@ -76,6 +233,17 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
         }
         return true;
     }
+
+    /**
+     * @notice  _transferFromAndCall()
+     *          Contains logic for both transferFromAndCall() functions.
+     * @param   from        source address to transfer from
+     * @param   to          recipient address to transfer to
+     * @param   value       amount of tokens to transfer
+     * @param   data        additional data with no specified format, sent in `onTransferReceived()` call to recipient
+     * @param   emitEvent   whether to emit Transfer event
+     * @dev     returns true unless reverted
+     */
     function _transferFromAndCall(
         address from, address to, uint256 value, bytes memory data, bool emitEvent
         ) internal virtual returns (bool) {
@@ -90,6 +258,16 @@ abstract contract ERC1363 is IERC1363, ERC20Core, ERC165 {
         }
         return true;
     }
+
+    /**
+     * @notice  _approveAndCall()
+     *          Contains logic for both approveAndCall() functions.
+     * @param   spender     spender address to grant allowance to
+     * @param   value       allowance, ie: amount of tokens spender is allowed to spend from caller's balance
+     * @param   data        additional data with no specified format, sent in `onTransferReceived()` call to recipient
+     * @param   emitEvent   whether to emit Transfer event
+     * @dev     returns true unless reverted
+     */
     function _approveAndCall(
         address spender, uint256 value, bytes memory data, bool emitEvent
         ) internal virtual returns (bool) {

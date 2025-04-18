@@ -40,6 +40,8 @@ import {ERC165} from "./ERC165.sol";
  *              to add ERC165 functionality
  *          modified 2025-04-10
  *              commented out all the reference imports to avoid contract name collisions
+ *          modified 2025-04-18
+ *              inserted `super.` to `burnFrom()` call to specify explicitly the ERC20Burnable parent contract
  */
 contract ERC20SampleCustomToken is ERC20Core, ERC20Metadata, ERC20Mintable, ERC20Burnable, Pausable, Ownable, ERC2612, ERC677, ERC165 {
     // events
@@ -73,7 +75,7 @@ contract ERC20SampleCustomToken is ERC20Core, ERC20Metadata, ERC20Mintable, ERC2
     }
 
     function burn(address _from, uint256 _value) public pausable returns (bool) {
-        burnFrom(_from, _value);
+        super.burnFrom(_from, _value);
         emit SCT_Burned(_from, _value);
         return true;
     }
