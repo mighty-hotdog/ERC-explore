@@ -80,11 +80,10 @@ forge build
 ```
 
 ## TODOs
-1. Implement ERC6909   
+1. Implement ERC6909  INCOMPLETE
 2. KIV ~~Implement OnlyOneCallGuard~~  
 3. Create and run tests for the whole suite  
 4. Implement ERC777 + tests  
 5. Implement ERC4626 + tests  
-6. Implement ERC6909 + tests  
-7. Implement ERC4337 + tests  
-8. Implement ERC3156 + tests  
+6. Implement ERC4337 + tests  
+7. Implement ERC3156 + tests  
