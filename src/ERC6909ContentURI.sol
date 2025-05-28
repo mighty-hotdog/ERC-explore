@@ -12,7 +12,7 @@ pragma solidity ^0.8.28;
  */
 abstract contract ERC6909ContentURI {
     // constants //////////////////////////////////////////////////////////////////////////
-    // contracts that inherit this ERC6909ContentURI contract must add this interface id to their list of supported interfaces
+    // inheriting contracts to add this interface id to their list of supported interfaces
     bytes4 public constant ERC6909_CONTENT_URI_INTERFACE_ID = 
         bytes4(keccak256("contractURI()")) ^
         bytes4(keccak256("tokenURI(uint256)"));

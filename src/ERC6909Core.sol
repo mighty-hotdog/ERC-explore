@@ -9,6 +9,9 @@ import {ERC165} from "./ERC165.sol";
  *          An implementation of the core ERC6909 standard. https://eips.ethereum.org/EIPS/eip-6909
  * @author  @mighty_hotdog
  *          created 2025-05-23
+ *          modified 2025-05-28
+ *              added new check for (_from != msg.sender) in _transferFrom()
+ *              added new tokenSupply() function that replaces the Token Supply extension
  *
  * @dev     Questions that MUST be answered for this contract to even be barebones useful:
  *          1. How to launch a new token under this contract?
@@ -36,7 +39,7 @@ abstract contract ERC6909Core is IERC6909Core, ERC165 {
      * @param   supportedInterfaces array of supported interfaces
      */
     constructor(bytes4[] memory supportedInterfaces) ERC165(supportedInterfaces) {
-        super._addSupportedInterface(ERC6909_CORE_INTERFACE_ID);
+        _onCreation();
     }
 
     /**
@@ -178,7 +181,7 @@ abstract contract ERC6909Core is IERC6909Core, ERC165 {
      * @dev     Updates _to token balance.
      * @dev     Emits Transfer() event.
      *
-     * @dev     Standard doesn't explicitly specifiy mint functions.
+     * @dev     Standard doesn't explicitly specifiy mint functions, but they are obviously necessary.
      *          The logic here is specific to this implementation.
      * @dev     Logic moved to _mint() to facilitate more flexible overriding.
      */
@@ -201,7 +204,7 @@ abstract contract ERC6909Core is IERC6909Core, ERC165 {
      * @dev     Updates _from token balance.
      * @dev     Emits Transfer() event.
      *
-     * @dev     Standard doesn't explicitly specifiy burn functions.
+     * @dev     Standard doesn't explicitly specifiy burn functions but they are obviously necessary.
      *          The logic here is specific to this implementation.
      * @dev     Logic moved to _burn() to facilitate more flexible overriding.
      */
@@ -210,7 +213,32 @@ abstract contract ERC6909Core is IERC6909Core, ERC165 {
         return true;
     }
 
+    /**
+     * @notice  tokenSupply()
+     *          Returns the total supply of a particular token.
+     * @param   _id     token ID
+     * @return          total supply
+     *
+     * @dev     View function. Never reverts.
+     * @dev     The ERC6909 standard describes a Token Supply extension that seems to be a result of bad design decisions.
+     * @dev     This function duplicates and replaces the Token Supply extension described in the ERC6909 standard.
+     */
+    function tokenSupply(uint256 _id) public view virtual returns (uint256) {
+        return _totalSupplies[_id];
+    }
+
     // internal and utility functions /////////////////////////////////////////////////////
+    /**
+     * @notice  _onCreation()
+     *          Contains the logic of contructor().
+     *
+     * @dev     Adds the ERC6909 core interface by default to list of supported interfaces.
+     *          Override to add additional default interfaces and custom constructor logic.
+     */
+    function _onCreation() internal virtual {
+        super._addSupportedInterface(ERC6909_CORE_INTERFACE_ID);
+    }
+
     /**
      * @notice  _transfer()
      *          Contains the logic of transfer().
@@ -240,7 +268,7 @@ abstract contract ERC6909Core is IERC6909Core, ERC165 {
         if (_to == address(0)) {
             revert("ERC6909: transfer to address(0)");
         }
-        if (!isOperator(_from, _to)) {
+        if ((_from != msg.sender) && (!isOperator(_from, _to))) {
             uint256 currentAllowance = allowance(_from, _to, _id);
             if (_value > currentAllowance) {
                 revert("ERC6909: transfer amount exceeds allowance");

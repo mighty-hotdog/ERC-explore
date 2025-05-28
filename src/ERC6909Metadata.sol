@@ -10,7 +10,7 @@ pragma solidity ^0.8.28;
  */
 abstract contract ERC6909Metadata {
     // constants //////////////////////////////////////////////////////////////////////////
-    // contracts that inherit this ERC6909Metadata contract must add this interface id to their list of supported interfaces
+    // inheriting contracts to add this interface id to their list of supported interfaces
     bytes4 public constant ERC6909_METADATA_INTERFACE_ID = 
         bytes4(keccak256("name(uint256)")) ^
         bytes4(keccak256("symbol(uint256)")) ^
