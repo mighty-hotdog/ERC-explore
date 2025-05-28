@@ -10,7 +10,7 @@ import {ERC165} from "./ERC165.sol";
  * @author  @mighty_hotdog
  *          created 2025-05-23
  *
- * @dev     Questions:
+ * @dev     Questions that MUST be answered for this contract to even be barebones useful:
  *          1. How to launch a new token under this contract?
  *          2. How to delist/remove an existing token?
  *          3. How to pause/unpause, suspend/resume a token?
@@ -22,7 +22,7 @@ import {ERC165} from "./ERC165.sol";
  */
 abstract contract ERC6909Core is IERC6909Core, ERC165 {
     // constants //////////////////////////////////////////////////////////////////////////
-    bytes4 public constant ERC6909_INTERFACE_ID = 0x0f632fb3;
+    bytes4 public constant ERC6909_CORE_INTERFACE_ID = 0x0f632fb3;
 
     // state variables ////////////////////////////////////////////////////////////////////
     mapping(uint256 id => uint256 totalSupply) private _totalSupplies;
@@ -36,7 +36,7 @@ abstract contract ERC6909Core is IERC6909Core, ERC165 {
      * @param   supportedInterfaces array of supported interfaces
      */
     constructor(bytes4[] memory supportedInterfaces) ERC165(supportedInterfaces) {
-        super._addSupportedInterface(ERC6909_INTERFACE_ID);
+        super._addSupportedInterface(ERC6909_CORE_INTERFACE_ID);
     }
 
     /**
