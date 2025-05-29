@@ -39,9 +39,12 @@ https://eips.ethereum.org/EIPS/eip-20
                 https://eips.ethereum.org/EIPS/eip-165  
 
 -   **ERC1155**: Multi token standard. Provides standard interface for contracts that manage multiple token types.  
+                 Enables a single contract to represent multiple fungible and non-fungible tokens, along with batched  
+                 operations for increased gas efficiency.
                  https://eips.ethereum.org/EIPS/eip-1155  
 
 -   **ERC6909**: Minimal multi token standard.  
+                 Simplified (improved?) version of ERC1155.
                  https://eips.ethereum.org/EIPS/eip-6909  
 
 -   **ERC3156**: Flash loan standard.  
@@ -80,10 +83,11 @@ forge build
 ```
 
 ## TODOs
-1. ~~Implement ERC6909~~ SOMEWHAT COMPLETED, NEEDS MORE WORK TO BE ACTUALLY USEFUL  
-2. ~~Implement OnlyOneCallGuard~~ KIV  
-3. Create and run tests for the whole suite  
-4. Implement ERC777 + tests  
-5. Implement ERC4626 + tests  
-6. Implement ERC4337 + tests  
-7. Implement ERC3156 + tests  
+1. ~~Implement OnlyOneCallGuard~~ KIV
+2. ~~Implement ERC6909~~ COMPLETED, BUT NOT USABLE IN CURRENT BASIC FORM  
+3. Create a sample ERC6909 contract that ties everything together into something actually usable    
+4. Create and run tests for the whole suite  
+5. Implement ERC777 + tests  
+6. Implement ERC4626 + tests  
+7. Implement ERC4337 + tests  
+8. Implement ERC3156 + tests  
